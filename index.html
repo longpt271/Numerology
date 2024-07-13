@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tính số thần số học của số điện thoại</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 20px;
+      }
+      input {
+        padding: 10px;
+        margin-top: 10px;
+        width: calc(100% - 22px);
+        font-size: 16px;
+      }
+      .result {
+        margin-top: 20px;
+      }
+    </style>
+    <script>
+      function sumOfDigits(phoneNumber) {
+        if (!phoneNumber) return null; // Kiểm tra nếu không có số điện thoại thì trả về null
+
+        // Xóa các ký tự không phải số từ số điện thoại
+        let digits = phoneNumber.replace(/\D/g, "");
+
+        // Tính tổng các chữ số
+        let sum = 0;
+        for (let digit of digits) {
+          sum += parseInt(digit);
+        }
+
+        // Nếu tổng lớn hơn 9, tính lại đến khi được số thần số học
+        while (sum > 9) {
+          let tempSum = 0;
+          while (sum > 0) {
+            tempSum += sum % 10;
+            sum = Math.floor(sum / 10);
+          }
+          sum = tempSum;
+        }
+
+        // Trả về số thần số học
+        return sum;
+      }
+
+      function describeLuckyNumber(luckyNumber) {
+        switch (luckyNumber) {
+          case 1:
+            return "Tự lập, sáng tạo, có thể dẫn đầu.";
+          case 2:
+            return "Hòa đồng, hợp tác, nhân từ.";
+          case 3:
+            return "Sáng tạo, năng động, đam mê.";
+          case 4:
+            return "Cẩn thận, chịu khó, ổn định.";
+          case 5:
+            return "Tự do, phiêu lưu, thích thú thú vị.";
+          case 6:
+            return "Tình yêu gia đình, trách nhiệm, nhân từ.";
+          case 7:
+            return "Suy nghĩ sâu sắc, nghiên cứu, sự thật.";
+          case 8:
+            return "Tham vọng, quyền lực, thành công.";
+          case 9:
+            return "Nhân hậu, nhân từ, nhạy cảm.";
+          default:
+            return "";
+        }
+      }
+
+      function handleInputChange(event) {
+        const phoneNumber = event.target.value;
+        const luckyNumber = sumOfDigits(phoneNumber);
+        const description = describeLuckyNumber(luckyNumber);
+
+        document.getElementById("luckyNumber").innerText =
+          luckyNumber !== null ? luckyNumber : "";
+        document.getElementById("description").innerText = description;
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Tính thần số học số điện thoại</h2>
+      <input
+        type="text"
+        id="phoneNumber"
+        oninput="handleInputChange(event)"
+        placeholder="Nhập số điện thoại..."
+      />
+      <div class="result">
+        <p id="luckyNumber"></p>
+        <p id="description"></p>
+      </div>
+    </div>
+  </body>
+</html>
