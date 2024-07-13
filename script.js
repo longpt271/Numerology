@@ -1,4 +1,5 @@
 let history = [];
+let debounceTimer;
 
 function sumOfDigits(phoneNumber) {
   if (!phoneNumber) return null;
@@ -46,34 +47,41 @@ function describeLuckyNumber(luckyNumber) {
   }
 }
 
+function debounce(func, delay) {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(func, delay);
+}
+
 function handleInputChange(event) {
-  const phoneNumber = event.target.value;
-  const luckyNumber = sumOfDigits(phoneNumber);
-  const description = describeLuckyNumber(luckyNumber);
+  debounce(() => {
+    const phoneNumber = event.target.value;
+    const luckyNumber = sumOfDigits(phoneNumber);
+    const description = describeLuckyNumber(luckyNumber);
 
-  if (phoneNumber) {
-    const existingIndex = history.findIndex(
-      (item) => item.phoneNumber === phoneNumber
-    );
+    if (phoneNumber) {
+      const existingIndex = history.findIndex(
+        (item) => item.phoneNumber === phoneNumber
+      );
 
-    if (existingIndex !== -1) {
-      history[existingIndex].count += 1;
-    } else {
-      history.unshift({
-        phoneNumber,
-        luckyNumber,
-        description,
-        count: 1,
-      });
+      if (existingIndex !== -1) {
+        history[existingIndex].count += 1;
+      } else {
+        history.unshift({
+          phoneNumber,
+          luckyNumber,
+          description,
+          count: 1,
+        });
+      }
+
+      displayHistory();
+      displayDescriptions();
     }
 
-    displayHistory();
-    displayDescriptions();
-  }
-
-  document.getElementById("luckyNumber").innerText =
-    luckyNumber !== null ? luckyNumber : "";
-  document.getElementById("description").innerText = description;
+    document.getElementById("luckyNumber").innerText =
+      luckyNumber !== null ? luckyNumber : "";
+    document.getElementById("description").innerText = description;
+  }, 1000); // Thời gian chờ 1000ms (1 giây) trước khi thực hiện xử lý
 }
 
 function displayHistory() {
