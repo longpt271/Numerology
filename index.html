@@ -1,18 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tính số thần số học của số điện thoại</title>
+    <title>Tính thần số học số điện thoại</title>
     <style>
       body {
         font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
       }
       .container {
-        max-width: 600px;
+        display: flex;
         margin: 0 auto;
-        text-align: center;
         padding: 20px;
+        text-align: center;
+      }
+      .column {
+        flex: 1;
+        padding: 20px;
+      }
+      #descriptions {
+        text-align: start;
+      }
+      .search-result-history {
+        flex: 2;
+      }
+      .result,
+      .history {
+        margin-top: 20px;
+      }
+      .result {
+        height: 55px;
       }
       input {
         padding: 10px;
@@ -20,24 +39,62 @@
         width: calc(100% - 22px);
         font-size: 16px;
       }
-      .result {
+      table {
+        width: 100%;
+        border-collapse: collapse;
         margin-top: 20px;
+      }
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: center;
+      }
+      th {
+        background-color: #f4f4f4;
+      }
+      .history-table th:nth-child(3),
+      .history-table td:nth-child(3) {
+        width: 25%;
+      }
+      .history-table th:nth-child(4),
+      .history-table td:nth-child(4) {
+        width: 25%;
+      }
+      .history-table th:nth-child(5),
+      .history-table td:nth-child(5) {
+        width: 10%;
+      }
+      .delete-button {
+        cursor: pointer;
+        background-color: #f44336;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        width: 100%;
+      }
+      @media (max-width: 768px) {
+        .container {
+          flex-direction: column;
+        }
+        .column {
+          padding: 10px;
+        }
       }
     </style>
     <script>
+      let history = [];
+
       function sumOfDigits(phoneNumber) {
-        if (!phoneNumber) return null; // Kiểm tra nếu không có số điện thoại thì trả về null
+        if (!phoneNumber) return null;
 
-        // Xóa các ký tự không phải số từ số điện thoại
         let digits = phoneNumber.replace(/\D/g, "");
-
-        // Tính tổng các chữ số
         let sum = 0;
         for (let digit of digits) {
           sum += parseInt(digit);
         }
 
-        // Nếu tổng lớn hơn 9, tính lại đến khi được số thần số học
         while (sum > 9) {
           let tempSum = 0;
           while (sum > 0) {
@@ -47,7 +104,6 @@
           sum = tempSum;
         }
 
-        // Trả về số thần số học
         return sum;
       }
 
@@ -81,24 +137,105 @@
         const luckyNumber = sumOfDigits(phoneNumber);
         const description = describeLuckyNumber(luckyNumber);
 
+        if (phoneNumber) {
+          const existingIndex = history.findIndex(
+            (item) => item.phoneNumber === phoneNumber
+          );
+
+          if (existingIndex !== -1) {
+            history[existingIndex].count += 1;
+          } else {
+            history.unshift({
+              phoneNumber,
+              luckyNumber,
+              description,
+              count: 1,
+            });
+          }
+
+          displayHistory();
+          displayDescriptions();
+        }
+
         document.getElementById("luckyNumber").innerText =
           luckyNumber !== null ? luckyNumber : "";
         document.getElementById("description").innerText = description;
       }
+
+      function displayHistory() {
+        const historyContainer = document.getElementById("history");
+        historyContainer.innerHTML = `
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Phone</th>
+                <th>Number</th>
+                <th>Count</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${history
+                .map(
+                  (item, index) => `
+                <tr>
+                  <td>${index + 1}</td>
+                  <td>${item.phoneNumber}</td>
+                  <td>${item.luckyNumber}</td>
+                  <td>${item.count}</td>
+                  <td><button class="delete-button" onclick="deleteItem(${index})">Xóa</button></td>
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
+        `;
+      }
+
+      function deleteItem(index) {
+        history.splice(index, 1);
+        displayHistory();
+      }
+
+      function displayDescriptions() {
+        const descriptionsContainer = document.getElementById("descriptions");
+        descriptionsContainer.innerHTML = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+          .map(
+            (num) => `
+          <p><strong>${num}:</strong> ${describeLuckyNumber(num)}</p>
+        `
+          )
+          .join("");
+      }
+
+      window.onload = displayDescriptions;
     </script>
   </head>
   <body>
     <div class="container">
-      <h2>Tính thần số học số điện thoại</h2>
-      <input
-        type="text"
-        id="phoneNumber"
-        oninput="handleInputChange(event)"
-        placeholder="Nhập số điện thoại..."
-      />
-      <div class="result">
-        <p id="luckyNumber"></p>
-        <p id="description"></p>
+      <div class="column"></div>
+      <div class="column search-result-history">
+        <h2>Tính thần số học số điện thoại</h2>
+        <input
+          type="text"
+          id="phoneNumber"
+          oninput="handleInputChange(event)"
+          placeholder="Nhập số điện thoại..."
+        />
+        <div class="result">
+          <b id="luckyNumber"></b>
+          <p id="description"></p>
+        </div>
+        <div class="history" id="history">
+          <!-- Lịch sử sẽ được hiển thị ở đây -->
+        </div>
+      </div>
+      <div class="column">
+        <div id="descriptions">
+          <!-- Danh sách mô tả ý nghĩa các con số sẽ được hiển thị ở đây -->
+        </div>
       </div>
     </div>
   </body>
